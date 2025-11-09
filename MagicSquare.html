@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Square</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        #controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 5px;
+        }
+        label {
+            white-space: nowrap;
+            min-width: 120px;
+            text-align: right;
+            font-size: 14px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 80px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #undo-btn {
+            background-color: #dc3545;
+        }
+        #undo-btn:hover {
+            background-color: #c82333;
+        }
+        #grid-container {
+            display: none;
+            grid-template-columns: repeat(var(--grid-size, 3), 1fr);
+            grid-template-rows: repeat(var(--grid-size, 3), 1fr);
+            gap: 1px;
+            background-color: black;
+            padding: 1px;
+            width: clamp(200px, 80vmin, 600px);
+            margin: 0 auto;
+        }
+        .cell {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(12px, 3vmin, 18px);
+            font-weight: bold;
+            cursor: pointer;
+            aspect-ratio: 1;
+            user-select: none;
+        }
+        .cell:hover {
+            background-color: #e9ecef;
+        }
+        .cell.filled {
+            background-color: #d4edda;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            display: none;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #results h3 {
+            margin-top: 0;
+        }
+        .sum-section {
+            margin-bottom: 10px;
+        }
+        .sums {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Magic Square</h1>
+    <div id="controls">
+        <div class="form-group">
+          <table>  <tr>  <td>
+            <label for="size">Grid Size (rows/columns):</label>  </td>
+              <td>
+            <input type="number" id="size" min="1" max="10" value="3">
+              </td>
+                </tr>
+        </div>
+        <div class="form-group">
+        <tr>
+          <td>
+            <label for="start">Starting Number:</label>
+             </td>
+               <td>
+             <input type="number" id="start" min="1" value="1">
+               </td>
+                 </tr>
+                   </table>
+        </div>
+        <button onclick="createGrid()">Create Square</button>
+        <button onclick="calculateSums()">Sum</button>
+        <button id="undo-btn" onclick="undoLast()">Undo</button>
+    </div>
+    <div id="grid-container"></div>
+    <div id="results">
+        <h3>Sums</h3>
+        <div id="row-sums" class="sum-section"></div>
+        <div id="col-sums" class="sum-section"></div>
+        <div id="diag-sums" class="sum-section">
+            <strong>Main Diagonal Sum:</strong> <span id="main-diag"></span><br>
+            <strong>Anti-Diagonal Sum:</strong> <span id="anti-diag"></span>
+        </div>
+    </div>
+
+    <script>
+        let currentNum = 1;
+        let gridSize = 0;
+        let gridCells = [];
+        let filledHistory = [];
+
+        function createGrid() {
+            const size = parseInt(document.getElementById('size').value);
+            const start = parseInt(document.getElementById('start').value) || 1;
+            if (size < 1 || size > 10) {
+                alert('Grid size must be between 1 and 10.');
+                return;
+            }
+            currentNum = start;
+            gridSize = size;
+            filledHistory = [];
+            const container = document.getElementById('grid-container');
+            container.style.setProperty('--grid-size', size);
+            container.innerHTML = '';
+            container.style.display = 'grid';
+            gridCells = [];
+            for (let i = 0; i < size * size; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.addEventListener('click', function() {
+                    if (this.textContent === '') {
+                        this.textContent = currentNum;
+                        currentNum++;
+                        this.classList.add('filled');
+                        filledHistory.push(this);
+                    }
+                });
+                container.appendChild(cell);
+                gridCells.push(cell);
+            }
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function undoLast() {
+            if (filledHistory.length > 0) {
+                const cell = filledHistory.pop();
+                if (cell.textContent !== '') {
+                    cell.textContent = '';
+                    cell.classList.remove('filled');
+                    currentNum--;
+                }
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function calculateSums() {
+            if (gridSize === 0) {
+                alert('Create a grid first.');
+                return;
+            }
+            const matrix = [];
+            for (let i = 0; i < gridSize; i++) {
+                matrix[i] = [];
+                for (let j = 0; j < gridSize; j++) {
+                    const cellValue = parseInt(gridCells[i * gridSize + j].textContent) || 0;
+                    matrix[i][j] = cellValue;
+                }
+            }
+
+            // Row sums
+            const rowSums = [];
+            for (let i = 0; i < gridSize; i++) {
+                let sum = 0;
+                for (let j = 0; j < gridSize; j++) {
+                    sum += matrix[i][j];
+                }
+                rowSums.push(sum);
+            }
+
+            // Column sums
+            const colSums = [];
+            for (let j = 0; j < gridSize; j++) {
+                let sum = 0;
+                for (let i = 0; i < gridSize; i++) {
+                    sum += matrix[i][j];
+                }
+                colSums.push(sum);
+            }
+
+            // Diagonal sums
+            let mainDiagSum = 0;
+            for (let i = 0; i < gridSize; i++) {
+                mainDiagSum += matrix[i][i];
+            }
+            let antiDiagSum = 0;
+            for (let i = 0; i < gridSize; i++) {
+                antiDiagSum += matrix[i][gridSize - 1 - i];
+            }
+
+            // Display results
+            document.getElementById('row-sums').innerHTML = '<strong>Row Sums:</strong> ' + rowSums.join(', ');
+            document.getElementById('col-sums').innerHTML = '<strong>Column Sums:</strong> ' + colSums.join(', ');
+            document.getElementById('main-diag').textContent = mainDiagSum;
+            document.getElementById('anti-diag').textContent = antiDiagSum;
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
