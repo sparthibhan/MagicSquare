@@ -5,138 +5,381 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Square</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+        :root{
+            --bg: #f4f5f7;
+            --card: #ffffff;
+            --text: #1c1c1e;
+            --muted: #6e6e73;
+            --accent: #007aff; /* iOS blue */
+            --accent-strong: #0066d6;
+            --danger: #ff3b30;
+            --radius: 12px;
+            --input-radius: 10px;
+            --control-padding: 10px 14px;
+            --grid-sep: #34c759; /* visible green separator / grid border color */
+            --grid-sep-muted: rgba(52,199,89,0.12); /* subtle fill if needed */
         }
-        #controls {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
+
+        /* Page */
+        html,body{
+            height:100%;
+            margin:0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, var(--bg), #eceef0);
+            color: var(--text);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
         }
-        .form-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin: 5px;
+
+        h1{
+            text-align:center;
+            font-weight:600;
+            letter-spacing:-0.02em;
+            margin-bottom:18px;
         }
-        label {
-            white-space: nowrap;
-            min-width: 120px;
-            text-align: right;
-            font-size: 14px;
+
+        /* Controls container (card) */
+        #controls{
+            margin: 0 auto 20px;
+            display:flex;
+            gap:12px;
+            align-items:center;
+            flex-wrap:wrap;
+            justify-content:center;
+            max-width:920px;
+            background: var(--card);
+            border-radius: calc(var(--radius) - 2px);
+            padding: 12px;
+            box-shadow: 0 6px 18px rgba(20,20,30,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        input[type="number"] {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 80px;
+
+        .form-group{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            margin:4px;
         }
-        button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
+
+        label{
+            white-space:nowrap;
+            /*min-width:140px;
+            text-align:right;*/
+            font-size:14px;
+            color:var(--muted);
+        }
+
+        input[type="number"]{
+            -webkit-appearance: none;
+            appearance: none;
+            padding: 8px 10px;
+            border-radius: var(--input-radius);
+            border: 1px solid rgba(0,0,0,0.08);
+            background: linear-gradient(180deg, #ffffff, #f7f8fa);
+            width:92px;
+            font-size:15px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+            color: var(--text);
+            outline: none;
+            transition: box-shadow .15s ease, border-color .12s ease, transform .08s ease;
+        }
+
+        input[type="number"]:focus{
+            border-color: rgba(0,122,255,0.75);
+            box-shadow: 0 6px 18px rgba(0,122,255,0.12);
+            transform: translateY(-1px);
+        }
+
+        /* Buttons - Apple/iOS style */
+        button{
+            padding: var(--control-padding);
+            background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+            color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 999px;
             cursor: pointer;
             margin: 5px;
+            font-weight:600;
+            font-size:14px;
+            box-shadow: 0 6px 14px rgba(0,122,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25);
+            transition: transform .08s ease, box-shadow .12s ease, opacity .12s ease;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        button:hover{ transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,122,255,0.18); }
+        button:active{ transform: translateY(0); box-shadow: 0 6px 10px rgba(0,122,255,0.12); opacity:0.98; }
+
+        #undo-btn{
+            background: linear-gradient(180deg, #ff6b67, #ff3b30);
+            box-shadow: 0 6px 14px rgba(255,59,48,0.16), inset 0 1px 0 rgba(255,255,255,0.2);
         }
-        #undo-btn {
-            background-color: #dc3545;
-        }
-        #undo-btn:hover {
-            background-color: #c82333;
-        }
-        #grid-container {
-            display: none;
-            grid-template-columns: repeat(var(--grid-size, 3), 1fr);
-            grid-template-rows: repeat(var(--grid-size, 3), 1fr);
-            gap: 1px;
-            background-color: black;
-            padding: 1px;
-            width: clamp(200px, 80vmin, 600px);
+
+        /* Grid */
+        #grid-container{
+            display:none;
+            grid-template-columns: repeat(var(--grid-size,3), 1fr);
+            gap: 1px;                    /* visible 1px separator between cells */
+            padding: 1px;                /* outer border thickness */
+            background: var(--grid-sep); /* separator color shows through gaps and padding */
+            width: clamp(220px, 80vmin, 680px);
             margin: 0 auto;
+            border-radius: calc(var(--radius) - 4px);
+            box-shadow: 0 8px 20px rgba(9,10,13,0.04);
+            overflow: hidden;
+            border: 1px solid var(--grid-sep); /* explicit outer border */
         }
-        .cell {
-            background-color: white;
+
+        .cell{
+            background: linear-gradient(180deg,#ffffff,#fbfbfd);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size: clamp(14px, 3vmin, 20px);
+            font-weight:700;
+            cursor:pointer;
+            aspect-ratio:1;
+            user-select:none;
+            border-radius: 0;
+            border: none;
+            /* remove inset hairline since actual separators are visible via gap/background */
+            box-shadow: none;
+            transition: transform .08s ease, background .12s ease;
+            color: var(--text);
+        }
+
+        /* keep outer rounded corners on the four corner cells */
+        /* top-left */
+        .cell:nth-child(1){ border-top-left-radius: calc(var(--radius) - 6px); }
+        /* top-right */
+        .cell:nth-child(var(--grid-size)){ border-top-right-radius: calc(var(--radius) - 6px); }
+        /* bottom-left */
+        .cell:nth-last-child(var(--grid-size)){ border-bottom-left-radius: calc(var(--radius) - 6px); }
+        /* bottom-right */
+        .cell:last-child{ border-bottom-right-radius: calc(var(--radius) - 6px); }
+
+        .cell:hover{
+            /* Do NOT move the cell on hover — moving can cover the 1px grid separators.
+               Change only background/inner effects so the green borders remain visible. */
+            transform: none;
+            background: linear-gradient(180deg,#f8fbff,#ffffff);
+            /* keep any hover effect inset-only so it won't overlap the separator gap */
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+        .cell.filled{
+            /* use inset highlight only (no outer glow) so separators stay visible */
+            background: linear-gradient(180deg,#e8f6ff,#dff2ff);
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
+        }
+
+        /* Results card (styled) */
+        #results{
+            margin-top:20px;
+            padding:18px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.98));
+            border-radius: 12px;
+            display:none;
+            max-width:760px;
+            margin-left:auto;
+            margin-right:auto;
+            box-shadow: 0 12px 30px rgba(20,20,30,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        #results h3{
+            margin:0 0 12px 0;
+            color:var(--muted);
+            font-weight:700;
+            font-size:16px;
+            letter-spacing: -0.01em;
+        }
+
+        .sum-grid{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:12px;
+        }
+
+        .sum-section{
+            background: linear-gradient(180deg, #fff, #fbfdff);
+            padding:12px;
+            border-radius:10px;
+            border: 1px solid rgba(0,0,0,0.04);
+            min-height:48px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+        }
+
+        .sum-section .sum-title{
+            color:var(--muted);
+            font-size:13px;
+            margin-bottom:8px;
+            font-weight:600;
+        }
+
+        /* chips for each sum value */
+        .chips{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .chip{
+            background: linear-gradient(180deg, rgba(52,199,89,0.10), rgba(52,199,89,0.06));
+            color: #22543d;
+            padding:6px 10px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:13px;
+            border: 1px solid rgba(52,199,89,0.16);
+            box-shadow: 0 6px 12px rgba(52,199,89,0.04);
+        }
+
+        .sum-value{
+            font-weight:800;
+            color: var(--accent);
+            font-size:15px;
+        }
+
+        .diag-row{
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            align-items:center;
+            padding:6px 0;
+        }
+
+        .sum-label{
+            color:var(--muted);
+            font-size:14px;
+            font-weight:600;
+        }
+
+        /* diag-specific alignment: make each diag value a chip so it lines up
+           with the row chips (put diag section into the first column) */
+        .chips .item{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+        }
+        .chips .item .sum-label{
+            font-size:12px;
+            color:var(--muted);
+            font-weight:600;
+        }
+        .chips .item .chip{
+            /* slightly larger chip for diagonal values */
+            padding:8px 12px;
+            font-size:14px;
+        }
+
+        /* ensure diag section aligns to the start of the column like the row chips */
+        .diag-section { align-self: start; padding-top: 4px; }
+
+        /* make results single-column on small screens */
+        @media (max-width:700px){
+            .sum-grid{ grid-template-columns:1fr; }
+        }
+
+        @media (max-width:520px){
+            label{ display:none; }
+            .form-group{ min-width:120px; }
+        }
+
+        /* status chip shown right of diagonals */
+        .status-chip{
+            display:inline-block;
+            padding:8px 14px;
+            border-radius:999px;
+            font-weight:800;
+            font-size: 30px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+            white-space:nowrap;
+        }
+        .status-chip.success{
+            background: linear-gradient(180deg, rgba(52,199,89,0.16), rgba(52,199,89,0.08));
+            color: #064e2f;
+            border: 1px solid rgba(52,199,89,0.22);
+        }
+        .status-chip.failure{
+            background: linear-gradient(180deg, rgba(255,99,92,0.12), rgba(255,99,92,0.06));
+            color: #7a1717;
+            border: 1px solid rgba(255,59,48,0.16);
+        }
+
+        /* status area sits in the grid second column next to diagonals */
+        .status-area{
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            display: flex;
+            align-items: center;      /* vertical center */
+            justify-content: center;  /* horizontal center */
+            text-align: center;
+            padding: 0;
+        }
+
+        /* ensure the status-area doesn't add extra height and remains centered */
+        .sum-section.status-area {
+            padding: 0;
+            min-height: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(12px, 3vmin, 18px);
-            font-weight: bold;
-            cursor: pointer;
-            aspect-ratio: 1;
-            user-select: none;
-        }
-        .cell:hover {
-            background-color: #e9ecef;
-        }
-        .cell.filled {
-            background-color: #d4edda;
-        }
-        #results {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 4px;
-            display: none;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        #results h3 {
-            margin-top: 0;
-        }
-        .sum-section {
-            margin-bottom: 10px;
-        }
-        .sums {
-            font-weight: bold;
-            color: #007bff;
         }
     </style>
 </head>
 <body>
     <h1>Magic Square</h1>
+
     <div id="controls">
         <div class="form-group">
-          <table>  <tr>  <td>
-            <label for="size">Grid Size (rows/columns):</label>  </td>
-              <td>
-            <input type="hidden" id="size" min="1" max="10" value="3">
-              </td>
-                </tr>
+            <label for="size">Grid Size (rows/columns):</label>
+            <input type="number" id="size" min="1" max="10" value="3">
+       <!-- </div>
+
+        <div class="form-group">-->
+            <label for="start">Start Number:</label>
+            <input type="number" id="start" min="1" value="1">
         </div>
-        <div class="form-group">
-        <tr>
-          <td>
-            
-             </td>
-               <td>
-             <input visible="hidden" type="number" id="start" min="1" value="1">
-               </td>
-                 </tr>
-                   </table>
+
+        <div class = "form-group">
+            <button onclick="createGrid()">Create Square</button>
+            <button onclick="calculateSums()">Sum and Check</button>
+            <button id="undo-btn" onclick="undoLast()">Undo</button>
         </div>
-        <button onclick="createGrid()">Create Square</button>
-        <button onclick="calculateSums()">Sum</button>
-        <button id="undo-btn" onclick="undoLast()">Undo</button>
     </div>
+
     <div id="grid-container"></div>
-    <div id="results">
+
+    <div id="results" tabindex="-1" aria-live="polite">
         <h3>Sums</h3>
-        <div id="row-sums" class="sum-section"></div>
-        <div id="col-sums" class="sum-section"></div>
-        <div id="diag-sums" class="sum-section">
-            <strong>Main Diagonal Sum:</strong> <span id="main-diag"></span><br>
-            <strong>Anti-Diagonal Sum:</strong> <span id="anti-diag"></span>
+        <div class="sum-grid">
+            <div id="row-sums" class="sum-section" aria-label="Row sums">
+                <!-- populated by JS -->
+            </div>
+
+            <div id="col-sums" class="sum-section" aria-label="Column sums">
+                <!-- populated by JS -->
+            </div>
+
+            <div id="diag-sums" class="sum-section diag-section" aria-label="Diagonal sums" style="grid-column: 1 / 2;">
+                <div class="sum-title">Diagonals</div>
+                <div class="chips">
+                    <div class="item">
+                        <div class="sum-label">Main Diagonal</div>
+                        <span id="main-diag" class="chip"></span>
+                    </div>
+                    <div class="item">
+                        <div class="sum-label">Anti Diagonal</div>
+                        <span id="anti-diag" class="chip"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- status-area placed in column 2 so it appears to the right of diagonals.
+                 JS will adjust vertical offset so the status's top lines up with the first
+                 Column chip (first column sum value). -->
+            <div id="status-area" class="sum-section status-area" style="grid-column: 2 / 3;"></div>
         </div>
     </div>
 
@@ -149,10 +392,10 @@
         function createGrid() {
             const size = parseInt(document.getElementById('size').value);
             const start = parseInt(document.getElementById('start').value) || 1;
-            if (size < 1 || size > 10) {
-                alert('Grid size must be between 1 and 10.');
-                return;
-            }
+            //if (size < 1 || size > 10) {
+            //    alert('Grid size must be between 1 and 10.');
+            //    return;
+            // }
             currentNum = start;
             gridSize = size;
             filledHistory = [];
@@ -195,6 +438,7 @@
                 alert('Create a grid first.');
                 return;
             }
+
             const matrix = [];
             for (let i = 0; i < gridSize; i++) {
                 matrix[i] = [];
@@ -208,9 +452,7 @@
             const rowSums = [];
             for (let i = 0; i < gridSize; i++) {
                 let sum = 0;
-                for (let j = 0; j < gridSize; j++) {
-                    sum += matrix[i][j];
-                }
+                for (let j = 0; j < gridSize; j++) sum += matrix[i][j];
                 rowSums.push(sum);
             }
 
@@ -218,28 +460,64 @@
             const colSums = [];
             for (let j = 0; j < gridSize; j++) {
                 let sum = 0;
-                for (let i = 0; i < gridSize; i++) {
-                    sum += matrix[i][j];
-                }
+                for (let i = 0; i < gridSize; i++) sum += matrix[i][j];
                 colSums.push(sum);
             }
 
             // Diagonal sums
-            let mainDiagSum = 0;
+            let mainDiagSum = 0, antiDiagSum = 0;
             for (let i = 0; i < gridSize; i++) {
                 mainDiagSum += matrix[i][i];
-            }
-            let antiDiagSum = 0;
-            for (let i = 0; i < gridSize; i++) {
                 antiDiagSum += matrix[i][gridSize - 1 - i];
             }
 
-            // Display results
-            document.getElementById('row-sums').innerHTML = '<strong>Row Sums:</strong> ' + rowSums.join(', ');
-            document.getElementById('col-sums').innerHTML = '<strong>Column Sums:</strong> ' + colSums.join(', ');
+            // Determine success: all row sums, column sums and both diagonals must be identical
+            const allSums = [...rowSums, ...colSums, mainDiagSum, antiDiagSum];
+            const success = allSums.length > 0 && allSums.every(v => v === allSums[0]);
+
+            // Build HTML
+            const rowHtml = '<div class="sum-title">Rows</div><div class="chips">' +
+                rowSums.map(v => `<span class="chip">${v}</span>`).join('') + '</div>';
+
+            const colHtml = '<div class="sum-title">Columns</div><div class="chips">' +
+                colSums.map(v => `<span class="chip">${v}</span>`).join('') + '</div>';
+
+            document.getElementById('row-sums').innerHTML = rowHtml;
+            document.getElementById('col-sums').innerHTML = colHtml;
+
+            // update diagonal numeric chips
             document.getElementById('main-diag').textContent = mainDiagSum;
             document.getElementById('anti-diag').textContent = antiDiagSum;
-            document.getElementById('results').style.display = 'block';
+
+            // put status chip into the status-area (right of diagonals)
+            const statusHtml = `<span id="status-chip" class="status-chip ${success ? 'success' : 'failure'}">${success ? 'Success' : 'Failure'}</span>`;
+            const statusArea = document.getElementById('status-area');
+            statusArea.innerHTML = statusHtml;
+
+            // ensure results visible then align status vertically with the first Column chip
+            const resultsEl = document.getElementById('results');
+            resultsEl.style.display = 'block';
+
+            // Wait a frame so layout is updated, then compute precise vertical offset
+            requestAnimationFrame(() => {
+                const firstColChip = document.querySelector('#col-sums .chips .chip');
+                const statusChip = document.getElementById('status-chip');
+                if (firstColChip && statusArea && statusChip) {
+                    const colRect = firstColChip.getBoundingClientRect();
+                    const statusAreaRect = statusArea.getBoundingClientRect();
+                    // compute top offset needed inside status-area so statusChip top aligns with firstColChip top
+                    const desiredTopInStatusArea = colRect.top - statusAreaRect.top;
+                    // apply padding-top to status-area so the chip shifts down into alignment
+                    statusArea.style.paddingTop = Math.max(0, desiredTopInStatusArea) + 'px';
+                } else {
+                    // fallback: small top padding
+                    statusArea.style.paddingTop = '6px';
+                }
+
+                // Bring results into view and focus for accessibility
+                resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                resultsEl.focus({ preventScroll: true });
+            });
         }
     </script>
 </body>
