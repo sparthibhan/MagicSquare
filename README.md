@@ -1,5 +1,4 @@
-# MagicSquare
-# Magic Square Game
+# Magic Square
 
 A responsive single-page web application built with HTML, CSS, and JavaScript that allows users to create dynamic square grids, fill cells sequentially with numbers, calculate row/column/diagonal sums, and undo actions step-by-step. This tool simulates aspects of constructing a magic square, where all rows, columns, and diagonals ideally sum to the same value, providing an educational and interactive experience for mathematics enthusiasts [web:91][web:92].
 
