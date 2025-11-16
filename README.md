@@ -44,7 +44,15 @@ This README has been updated to reflect recent UI and behavior changes.
    - The status text appears to the right of diagonals and is aligned with the first column sum.
 6. Use "Undo" to remove last filled cell(s); results hide after undo.
 
+Ex: 3X3 Magic Square . The sums of the numbers in each row, each column, and both main diagonals are equal.
+
 ![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
+![alt text](image-3.png)
 
 ## Notes for developers
 
