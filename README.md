@@ -4,6 +4,8 @@ A responsive single-page web app (HTML, CSS, Vanilla JS) for creating square gri
 
 This README has been updated to reflect recent UI and behavior changes.
 
+Demo URL : https://sparthibhan.github.io/MagicSquare
+
 ## Highlights / What changed
 
 - Apple-like theme: improved UI styling for inputs, buttons and cards (subtle gradients, rounded controls).
@@ -24,7 +26,7 @@ This README has been updated to reflect recent UI and behavior changes.
 
 ## Features
 
-- Dynamic grid creation (1–10) with configurable start number.
+- Unllimited Dynamic grid creation (N X N) with configurable start number.
 - Click empty cells to fill sequential numbers (starts from chosen start number).
 - "Sum and Check" calculates:
   - Row sums (chips)
@@ -36,7 +38,7 @@ This README has been updated to reflect recent UI and behavior changes.
 
 ## How to use
 
-1. Open `MagicSquare.html` in a modern browser.
+1. Go to URL https://sparthibhan.github.io/MagicSquare
 2. Enter grid size and starting number.
 3. Click "Create Square".
 4. Click empty cells to fill them (numbers increment automatically).
