@@ -29,6 +29,7 @@
             color: var(--text);
             -webkit-font-smoothing:antialiased;
             -moz-osx-font-smoothing:grayscale;
+            /* removed flex and min-height to allow page to scroll vertically */
         }
 
         h1{
@@ -120,12 +121,17 @@
             gap: 1px;                    /* visible 1px separator between cells */
             padding: 1px;                /* outer border thickness */
             background: var(--grid-sep); /* separator color shows through gaps and padding */
-            width: clamp(220px, 80vmin, 680px);
+            min-width: unset;
+            max-width: unset;
+            width: auto;
             margin: 0 auto;
+            display: block;
             border-radius: calc(var(--radius) - 4px);
             box-shadow: 0 8px 20px rgba(9,10,13,0.04);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
             border: 1px solid var(--grid-sep); /* explicit outer border */
+            box-sizing: border-box;
         }
 
         .cell{
@@ -144,6 +150,13 @@
             box-shadow: none;
             transition: transform .08s ease, background .12s ease;
             color: var(--text);
+            min-width: 56px;
+            min-height: 56px;
+            max-width: 56px;
+            max-height: 56px;
+            overflow: hidden;
+            word-break: normal;
+            white-space: nowrap;
         }
 
         /* keep outer rounded corners on the four corner cells */
@@ -368,6 +381,7 @@
 <body>
     <h1>Magic Square</h1>
 
+    <div style="display: flex; flex-direction: column; min-height: 80vh; justify-content: center; align-items: center;">
     <div id="controls">
         <div class="form-group">
             <label for="size">Grid Size (rows/columns):</label>
@@ -389,6 +403,8 @@
     <div id="grid-container"></div>
 
     <div id="results" tabindex="-1" aria-live="polite">
+    </div>
+    </div>
         <h3>Sums</h3>
         <div class="sum-grid">
             <div id="row-sums" class="sum-section" aria-label="Row sums">
@@ -429,17 +445,13 @@
         function createGrid() {
             const size = parseInt(document.getElementById('size').value);
             const start = parseInt(document.getElementById('start').value) || 1;
-            //if (size < 1 || size > 10) {
-            //    alert('Grid size must be between 1 and 10.');
-            //    return;
-            // }
             currentNum = start;
             gridSize = size;
             filledHistory = [];
             const container = document.getElementById('grid-container');
-            container.style.setProperty('--grid-size', size);
             container.innerHTML = '';
             container.style.display = 'grid';
+            container.style.gridTemplateColumns = `repeat(${size}, 56px)`;
             gridCells = [];
             for (let i = 0; i < size * size; i++) {
                 const cell = document.createElement('div');
