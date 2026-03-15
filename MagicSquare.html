@@ -7,36 +7,50 @@
     <style>
         :root{
             --bg: #f4f5f7;
-            --card: #ffffff;
+            --card: #fff;
             --text: #1c1c1e;
             --muted: #6e6e73;
-            --accent: #007aff; /* iOS blue */
+            --accent: #007aff;
             --accent-strong: #0066d6;
             --danger: #ff3b30;
-            --radius: 12px;
-            --input-radius: 10px;
-            --control-padding: 10px 14px;
-            --grid-sep: #34c759; /* visible green separator / grid border color */
-            --grid-sep-muted: rgba(52,199,89,0.12); /* subtle fill if needed */
+            --radius: 18px;
+            --input-radius: 12px;
+            --control-padding: 12px 18px;
+            --grid-sep: #34c759;
+            --grid-sep-muted: rgba(52,199,89,0.12);
+            --shadow: 0 8px 32px rgba(0,0,0,0.10);
         }
 
-        /* Page */
         html,body{
-            height:100%;
+            min-height:100vh;
             margin:0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(180deg, var(--bg), #eceef0);
+            background: linear-gradient(135deg, #e3e9f0 0%, #f4f5f7 100%);
             color: var(--text);
             -webkit-font-smoothing:antialiased;
             -moz-osx-font-smoothing:grayscale;
-            /* removed flex and min-height to allow page to scroll vertically */
+        }
+
+        .centered-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 36px 32px 32px 32px;
+            max-width: 520px;
+            margin: 48px auto 32px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1{
             text-align:center;
-            font-weight:600;
+            font-weight:800;
             letter-spacing:-0.02em;
             margin-bottom:18px;
+            font-size:2.2rem;
+            color: var(--accent-strong);
+            text-shadow: 0 2px 12px rgba(0,122,255,0.07);
         }
 
         /* Controls container (card) */
@@ -208,18 +222,20 @@
         .sum-grid{
             display:grid;
             grid-template-columns: 1fr 1fr;
-            gap:12px;
+            gap:18px;
+            margin-bottom: 8px;
         }
 
         .sum-section{
-            background: linear-gradient(180deg, #fff, #fbfdff);
-            padding:12px;
-            border-radius:10px;
+            background: linear-gradient(180deg, #fff, #f7fafd 90%);
+            padding:18px 14px 14px 14px;
+            border-radius:14px;
             border: 1px solid rgba(0,0,0,0.04);
             min-height:48px;
             display:flex;
             flex-direction:column;
             justify-content:center;
+            box-shadow: 0 2px 10px rgba(52,199,89,0.04);
         }
 
         .sum-section .sum-title{
@@ -237,14 +253,15 @@
         }
 
         .chip{
-            background: linear-gradient(180deg, rgba(52,199,89,0.10), rgba(52,199,89,0.06));
+            background: linear-gradient(180deg, rgba(52,199,89,0.13), rgba(52,199,89,0.07));
             color: #22543d;
-            padding:6px 10px;
+            padding:8px 14px;
             border-radius:999px;
             font-weight:700;
-            font-size:13px;
+            font-size:15px;
             border: 1px solid rgba(52,199,89,0.16);
             box-shadow: 0 6px 12px rgba(52,199,89,0.04);
+            letter-spacing:0.01em;
         }
 
         .sum-value{
@@ -290,19 +307,19 @@
 
         /* make results single-column on small screens */
         @media (max-width:700px){
+            .centered-card { max-width: 98vw; padding: 18px 4vw 18px 4vw; }
             .sum-grid{ grid-template-columns:1fr; }
         }
 
         @media (max-width:520px){
-            /* keep labels visible on narrow screens and stack controls */
+            .centered-card { padding: 8px 2vw 8px 2vw; }
             #controls {
-                padding: 12px;
-                gap: 10px;
+                padding: 10px;
+                gap: 8px;
                 justify-content: stretch;
                 flex-direction: column;
                 align-items: stretch;
             }
-
             .form-group{
                 display: flex;
                 flex-direction: column;
@@ -311,9 +328,8 @@
                 margin: 6px 0;
                 min-width: 0;
             }
-
             label{
-                display: block !important;    /* ensure labels are shown */
+                display: block !important;
                 text-align: left;
                 min-width: 0;
                 margin: 0 0 6px 0;
@@ -321,13 +337,10 @@
                 color: var(--muted);
                 white-space: normal;
             }
-
             input[type="number"]{
                 width: 100%;
                 box-sizing: border-box;
             }
-
-            /* Make buttons full width and stack nicely */
             #controls > button, .form-group > button, button {
                 width: 100%;
                 min-width: 0;
@@ -380,8 +393,7 @@
 </head>
 <body>
     <h1>Magic Square</h1>
-
-    <div style="display: flex; flex-direction: column; min-height: 80vh; justify-content: center; align-items: center;">
+    <div class="centered-card">
     <div id="controls">
         <div class="form-group">
             <label for="size">Grid Size (rows/columns):</label>
@@ -402,38 +414,38 @@
 
     <div id="grid-container"></div>
 
-    <div id="results" tabindex="-1" aria-live="polite">
-    </div>
-    </div>
-        <h3>Sums</h3>
-        <div class="sum-grid">
-            <div id="row-sums" class="sum-section" aria-label="Row sums">
-                <!-- populated by JS -->
-            </div>
 
-            <div id="col-sums" class="sum-section" aria-label="Column sums">
-                <!-- populated by JS -->
-            </div>
+    </div>
+    <h3 style="text-align:center; color:var(--muted); font-weight:700; margin-top:32px; margin-bottom:10px; letter-spacing:-0.01em; font-size:1.2rem;">Sums</h3>
+    <div class="sum-grid">
+        <div id="row-sums" class="sum-section" aria-label="Row sums">
+            <div class="sum-title">Rows</div>
+            <div class="chips" id="row-chips"></div>
+        </div>
 
-            <div id="diag-sums" class="sum-section diag-section" aria-label="Diagonal sums" style="grid-column: 1 / 2;">
-                <div class="sum-title">Diagonals</div>
-                <div class="chips">
-                    <div class="item">
-                        <div class="sum-label">Main Diagonal</div>
-                        <span id="main-diag" class="chip"></span>
-                    </div>
-                    <div class="item">
-                        <div class="sum-label">Anti Diagonal</div>
-                        <span id="anti-diag" class="chip"></span>
-                    </div>
+        <div id="col-sums" class="sum-section" aria-label="Column sums">
+            <div class="sum-title">Columns</div>
+            <div class="chips" id="col-chips"></div>
+        </div>
+
+        <div id="diag-sums" class="sum-section diag-section" aria-label="Diagonal sums" style="grid-column: 1 / 2;">
+            <div class="sum-title">Diagonals</div>
+            <div class="chips">
+                <div class="item">
+                    <div class="sum-label">Main Diagonal</div>
+                    <span id="main-diag" class="chip"></span>
+                </div>
+                <div class="item">
+                    <div class="sum-label">Anti Diagonal</div>
+                    <span id="anti-diag" class="chip"></span>
                 </div>
             </div>
-
-            <!-- status-area placed in column 2 so it appears to the right of diagonals.
-                 JS will adjust vertical offset so the status's top lines up with the first
-                 Column chip (first column sum value). -->
-            <div id="status-area" class="sum-section status-area" style="grid-column: 2 / 3;"></div>
         </div>
+
+        <!-- status-area placed in column 2 so it appears to the right of diagonals.
+             JS will adjust vertical offset so the status's top lines up with the first
+             Column chip (first column sum value). -->
+        <div id="status-area" class="sum-section status-area" style="grid-column: 2 / 3;"></div>
     </div>
 
     <script>
@@ -442,7 +454,66 @@
         let gridCells = [];
         let filledHistory = [];
 
-        function createGrid() {
+        // Modern modal dialog
+        function showModal(message, options = {}) {
+            // Remove any existing modal
+            const old = document.getElementById('custom-modal');
+            if (old) old.remove();
+            const modal = document.createElement('div');
+            modal.id = 'custom-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <div class="modal-message">${message}</div>
+                    <div class="modal-actions">
+                        ${options.type === 'confirm' ? `
+                            <button class="modal-btn modal-ok">OK</button>
+                            <button class="modal-btn modal-cancel">Cancel</button>
+                        ` : `
+                            <button class="modal-btn modal-ok">OK</button>
+                        `}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            // Style
+            const style = document.createElement('style');
+            style.textContent = `
+                #custom-modal { position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+                .modal-backdrop { position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(30,34,40,0.22); backdrop-filter: blur(2px); }
+                .modal-content { position: relative; background: linear-gradient(180deg,#fff,#f7f8fa); border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.13); padding: 32px 28px 22px 28px; min-width: 320px; max-width: 90vw; text-align: center; }
+                .modal-message { font-size: 17px; color: #1c1c1e; margin-bottom: 24px; font-weight: 600; }
+                .modal-actions { display: flex; gap: 18px; justify-content: center; }
+                .modal-btn { padding: 10px 28px; border-radius: 999px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; background: linear-gradient(180deg, #007aff, #0066d6); color: #fff; box-shadow: 0 4px 12px rgba(0,122,255,0.13); transition: background .12s, box-shadow .12s; }
+                .modal-btn:active { background: #0066d6; }
+                .modal-cancel { background: linear-gradient(180deg, #e0e0e0, #b0b0b0); color: #333; }
+                .modal-cancel:active { background: #b0b0b0; }
+            `;
+            document.head.appendChild(style);
+            // Button handlers
+            return new Promise(resolve => {
+                modal.querySelector('.modal-ok').onclick = () => {
+                    modal.remove();
+                    style.remove();
+                    resolve(true);
+                };
+                const cancelBtn = modal.querySelector('.modal-cancel');
+                if (cancelBtn) {
+                    cancelBtn.onclick = () => {
+                        modal.remove();
+                        style.remove();
+                        resolve(false);
+                    };
+                }
+            });
+        }
+
+        async function createGrid() {
+            // If gridCells exist and any cell has value, show confirm modal
+            if (gridCells && gridCells.length > 0 && gridCells.some(cell => cell.textContent && cell.textContent.trim() !== '')) {
+                const proceed = await showModal('There are already values in the current grid. Are you sure you want to create a new square? This will erase the current grid.', { type: 'confirm' });
+                if (!proceed) return;
+            }
             const size = parseInt(document.getElementById('size').value);
             const start = parseInt(document.getElementById('start').value) || 1;
             currentNum = start;
@@ -467,7 +538,7 @@
                 container.appendChild(cell);
                 gridCells.push(cell);
             }
-            document.getElementById('results').style.display = 'none';
+            // results div removed
         }
 
         function undoLast() {
@@ -478,13 +549,18 @@
                     cell.classList.remove('filled');
                     currentNum--;
                 }
-                document.getElementById('results').style.display = 'none';
+                // results div removed
             }
         }
 
-        function calculateSums() {
+        async function calculateSums() {
             if (gridSize === 0) {
-                alert('Create a grid first.');
+                await showModal('Create a grid first.');
+                return;
+            }
+            // Check all cells are filled
+            if (gridCells.some(cell => !cell.textContent || cell.textContent.trim() === '')) {
+                await showModal('Please update all the values in the grid and then click here to calculate the sum of the rows, columns, and diagonal values.');
                 return;
             }
 
@@ -525,14 +601,10 @@
             const success = allSums.length > 0 && allSums.every(v => v === allSums[0]);
 
             // Build HTML
-            const rowHtml = '<div class="sum-title">Rows</div><div class="chips">' +
-                rowSums.map(v => `<span class="chip">${v}</span>`).join('') + '</div>';
 
-            const colHtml = '<div class="sum-title">Columns</div><div class="chips">' +
-                colSums.map(v => `<span class="chip">${v}</span>`).join('') + '</div>';
-
-            document.getElementById('row-sums').innerHTML = rowHtml;
-            document.getElementById('col-sums').innerHTML = colHtml;
+            // Only update chips, not the sum-title
+            document.getElementById('row-chips').innerHTML = rowSums.map(v => `<span class="chip">${v}</span>`).join('');
+            document.getElementById('col-chips').innerHTML = colSums.map(v => `<span class="chip">${v}</span>`).join('');
 
             // update diagonal numeric chips
             document.getElementById('main-diag').textContent = mainDiagSum;
@@ -544,13 +616,11 @@
             statusArea.innerHTML = statusHtml;
 
             // ensure results visible then align status vertically with the first Column chip
-            const resultsEl = document.getElementById('results');
-            resultsEl.style.display = 'block';
-
             // Wait a frame so layout is updated, then compute precise vertical offset
             requestAnimationFrame(() => {
                 const firstColChip = document.querySelector('#col-sums .chips .chip');
                 const statusChip = document.getElementById('status-chip');
+                const statusArea = document.getElementById('status-area');
                 if (firstColChip && statusArea && statusChip) {
                     const colRect = firstColChip.getBoundingClientRect();
                     const statusAreaRect = statusArea.getBoundingClientRect();
@@ -562,10 +632,6 @@
                     // fallback: small top padding
                     statusArea.style.paddingTop = '6px';
                 }
-
-                // Bring results into view and focus for accessibility
-                resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                resultsEl.focus({ preventScroll: true });
             });
         }
     </script>
