@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Square</title>
     <style>
+                .grid-outer-center {
+                    width: 100vw;
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    margin-top: 18px;
+                    margin-bottom: 18px;
+                }
         :root{
             --bg: #f4f5f7;
             --card: #fff;
@@ -130,16 +138,16 @@
 
         /* Grid */
         #grid-container{
-            display:none;
+            display: none;
             grid-template-columns: repeat(var(--grid-size,3), 1fr);
             gap: 1px;                    /* visible 1px separator between cells */
             padding: 1px;                /* outer border thickness */
             background: var(--grid-sep); /* separator color shows through gaps and padding */
             min-width: unset;
             max-width: unset;
-            width: auto;
-            margin: 0 auto;
-            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
             border-radius: calc(var(--radius) - 4px);
             box-shadow: 0 8px 20px rgba(9,10,13,0.04);
             overflow-x: auto;
@@ -147,6 +155,7 @@
             border: 1px solid var(--grid-sep); /* explicit outer border */
             box-sizing: border-box;
         }
+        
 
         .cell{
             background: linear-gradient(180deg,#ffffff,#fbfbfd);
@@ -394,28 +403,24 @@
 <body>
     <h1>Magic Square</h1>
     <div class="centered-card">
-    <div id="controls">
-        <div class="form-group">
-            <label for="size">Grid Size (rows/columns):</label>
-            <input type="number" id="size" min="1" max="10" value="3">
-       <!-- </div>
-
-        <div class="form-group">-->
-            <label for="start">Start Number:</label>
-            <input type="number" id="start" min="1" value="1">
-        </div>
-
-        <div class = "form-group">
-            <button onclick="createGrid()">Create Square</button>
-            <button onclick="calculateSums()">Sum and Check</button>
-            <button id="undo-btn" onclick="undoLast()">Undo</button>
+        <div id="controls">
+            <div class="form-group">
+                <label for="size">Grid Size (rows/columns):</label>
+                <input type="number" id="size" min="1" max="10" value="3">
+                <label for="start">Start Number:</label>
+                <input type="number" id="start" min="1" value="1">
+            </div>
+            <div class = "form-group">
+                <button onclick="createGrid()">Create Square</button>
+                <button onclick="calculateSums()">Sum and Check</button>
+                <button id="undo-btn" onclick="undoLast()">Undo</button>
+            </div>
         </div>
     </div>
-
-    <div id="grid-container"></div>
-
-
+    <div class="grid-outer-center">
+        <div id="grid-container"></div>
     </div>
+
     <h3 style="text-align:center; color:var(--muted); font-weight:700; margin-top:32px; margin-bottom:10px; letter-spacing:-0.01em; font-size:1.2rem;">Sums</h3>
     <div class="sum-grid">
         <div id="row-sums" class="sum-section" aria-label="Row sums">
@@ -479,15 +484,54 @@
             // Style
             const style = document.createElement('style');
             style.textContent = `
-                #custom-modal { position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-                .modal-backdrop { position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(30,34,40,0.22); backdrop-filter: blur(2px); }
-                .modal-content { position: relative; background: linear-gradient(180deg,#fff,#f7f8fa); border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.13); padding: 32px 28px 22px 28px; min-width: 320px; max-width: 90vw; text-align: center; }
+                #custom-modal {
+                    position: fixed;
+                    z-index: 9999;
+                    left: 0; top: 0;
+                    width: 100vw; height: 100vh;
+                    min-width: 100vw; min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: none;
+                }
+                .modal-backdrop {
+                    position: absolute;
+                    left: 0; top: 0;
+                    width: 100vw; height: 100vh;
+                    min-width: 100vw; min-height: 100vh;
+                    background: rgba(30,34,40,0.22);
+                    backdrop-filter: blur(2px);
+                }
+                .modal-content {
+                    position: relative;
+                    background: linear-gradient(180deg,#fff,#f7f8fa);
+                    border-radius: 18px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+                    padding: 32px 28px 22px 28px;
+                    min-width: 0;
+                    max-width: 98vw;
+                    width: 100%;
+                    box-sizing: border-box;
+                    text-align: center;
+                }
                 .modal-message { font-size: 17px; color: #1c1c1e; margin-bottom: 24px; font-weight: 600; }
-                .modal-actions { display: flex; gap: 18px; justify-content: center; }
+                .modal-actions { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
                 .modal-btn { padding: 10px 28px; border-radius: 999px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; background: linear-gradient(180deg, #007aff, #0066d6); color: #fff; box-shadow: 0 4px 12px rgba(0,122,255,0.13); transition: background .12s, box-shadow .12s; }
                 .modal-btn:active { background: #0066d6; }
                 .modal-cancel { background: linear-gradient(180deg, #e0e0e0, #b0b0b0); color: #333; }
                 .modal-cancel:active { background: #b0b0b0; }
+                @media (max-width: 520px) {
+                    .modal-content {
+                        padding: 12px 4vw 12px 4vw;
+                        min-width: 0;
+                        max-width: 98vw;
+                        width: 98vw;
+                    }
+                    .modal-message { font-size: 15px; }
+                    .modal-btn { width: 100%; min-width: 0; box-sizing: border-box; }
+                    .modal-actions { flex-direction: column; gap: 10px; }
+                }
             `;
             document.head.appendChild(style);
             // Button handlers
