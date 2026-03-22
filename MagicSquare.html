@@ -583,6 +583,12 @@
                 gridCells.push(cell);
             }
             // results div removed
+            // Reset all values in sum-grid
+            document.getElementById('row-chips').innerHTML = '';
+            document.getElementById('col-chips').innerHTML = '';
+            document.getElementById('main-diag').textContent = '';
+            document.getElementById('anti-diag').textContent = '';
+            document.getElementById('status-area').innerHTML = '';
         }
 
         function undoLast() {
