@@ -137,8 +137,83 @@
         }
 
         /* Grid */
+        .grid-with-labels{
+            display:none;
+            grid-template-columns: 28px max-content 28px;
+            grid-template-rows: 28px max-content 28px;
+            align-items:center;
+            justify-items:center;
+            gap:4px;
+            margin:0 auto;
+        }
+
+        .grid-with-labels.active{
+            display:grid;
+        }
+
+        .column-labels,
+        .row-labels{
+            display:grid;
+            color:var(--muted);
+            font-size:13px;
+            font-weight:700;
+            align-items:center;
+            justify-items:center;
+        }
+
+        .column-labels{
+            grid-template-columns: repeat(var(--grid-size,3), 56px);
+            gap:1px;
+        }
+
+        .row-labels{
+            grid-template-rows: repeat(var(--grid-size,3), 56px);
+            gap:1px;
+        }
+
+        .axis-label{
+            width:56px;
+            height:56px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            box-sizing:border-box;
+        }
+
+        .column-labels .axis-label{
+            width:56px;
+            height:28px;
+        }
+
+        .row-labels .axis-label{
+            width:28px;
+            height:56px;
+        }
+
+        #top-column-labels{
+            grid-column:2;
+            grid-row:1;
+        }
+
+        #bottom-column-labels{
+            grid-column:2;
+            grid-row:3;
+        }
+
+        #left-row-labels{
+            grid-column:1;
+            grid-row:2;
+        }
+
+        #right-row-labels{
+            grid-column:3;
+            grid-row:2;
+        }
+
         #grid-container{
             display: none;
+            grid-column:2;
+            grid-row:2;
             grid-template-columns: repeat(var(--grid-size,3), 1fr);
             gap: 1px;                    /* visible 1px separator between cells */
             padding: 1px;                /* outer border thickness */
@@ -456,7 +531,13 @@
         </div>
     </div>
     <div class="grid-outer-center">
-        <div id="grid-container"></div>
+        <div id="grid-with-labels" class="grid-with-labels">
+            <div id="top-column-labels" class="column-labels" aria-label="Top column numbers"></div>
+            <div id="left-row-labels" class="row-labels" aria-label="Left row numbers"></div>
+            <div id="grid-container"></div>
+            <div id="right-row-labels" class="row-labels" aria-label="Right row numbers"></div>
+            <div id="bottom-column-labels" class="column-labels" aria-label="Bottom column numbers"></div>
+        </div>
     </div>
 
     <div id="status-area" aria-live="polite"></div>
@@ -604,6 +685,33 @@
             container.innerHTML = '';
             container.style.display = 'grid';
             container.style.gridTemplateColumns = `repeat(${size}, 56px)`;
+            document.getElementById('grid-with-labels').classList.add('active');
+
+            const topLabels = document.getElementById('top-column-labels');
+            const bottomLabels = document.getElementById('bottom-column-labels');
+            const leftLabels = document.getElementById('left-row-labels');
+            const rightLabels = document.getElementById('right-row-labels');
+            topLabels.innerHTML = '';
+            bottomLabels.innerHTML = '';
+            leftLabels.innerHTML = '';
+            rightLabels.innerHTML = '';
+            topLabels.style.setProperty('--grid-size', size);
+            bottomLabels.style.setProperty('--grid-size', size);
+            leftLabels.style.setProperty('--grid-size', size);
+            rightLabels.style.setProperty('--grid-size', size);
+
+            topLabels.style.gridTemplateColumns = `repeat(${size}, 56px)`;
+            bottomLabels.style.gridTemplateColumns = `repeat(${size}, 56px)`;
+            leftLabels.style.gridTemplateRows = `repeat(${size}, 56px)`;
+            rightLabels.style.gridTemplateRows = `repeat(${size}, 56px)`;
+
+            for (let i = 1; i <= size; i++) {
+                topLabels.insertAdjacentHTML('beforeend', `<span class="axis-label" aria-label="Column ${i}">${i}</span>`);
+                bottomLabels.insertAdjacentHTML('beforeend', `<span class="axis-label" aria-label="Column ${i}">${i}</span>`);
+                leftLabels.insertAdjacentHTML('beforeend', `<span class="axis-label" aria-label="Row ${i}">${i}</span>`);
+                rightLabels.insertAdjacentHTML('beforeend', `<span class="axis-label" aria-label="Row ${i}">${i}</span>`);
+            }
+
             gridCells = [];
             for (let i = 0; i < size * size; i++) {
                 const cell = document.createElement('div');
