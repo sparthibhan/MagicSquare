@@ -235,6 +235,44 @@
             margin-bottom: 8px;
         }
 
+        #sums-panel,
+        #status-area{
+            display:none;
+        }
+
+        #status-area{
+            width: fit-content;
+            margin: 24px auto 0;
+        }
+
+        #status-area.status-visible{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+        }
+
+        .failure-details{
+            width:38px;
+            height:38px;
+            min-width:38px;
+            padding:0;
+            margin:0;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:50%;
+            background: linear-gradient(180deg, #ff6b67, #ff3b30);
+            color:#fff;
+            font-size:20px;
+            font-weight:800;
+            box-shadow: 0 8px 18px rgba(255,59,48,0.20);
+        }
+
+        .failure-details:hover{
+            transform:translateY(-1px);
+        }
+
         .sum-section{
             background: linear-gradient(180deg, #fff, #f7fafd 90%);
             padding:18px 14px 14px 14px;
@@ -421,36 +459,35 @@
         <div id="grid-container"></div>
     </div>
 
-    <h3 style="text-align:center; color:var(--muted); font-weight:700; margin-top:32px; margin-bottom:10px; letter-spacing:-0.01em; font-size:1.2rem;">Sums</h3>
-    <div class="sum-grid">
-        <div id="row-sums" class="sum-section" aria-label="Row sums">
-            <div class="sum-title">Rows</div>
-            <div class="chips" id="row-chips"></div>
-        </div>
+    <div id="status-area" aria-live="polite"></div>
 
-        <div id="col-sums" class="sum-section" aria-label="Column sums">
-            <div class="sum-title">Columns</div>
-            <div class="chips" id="col-chips"></div>
-        </div>
+    <div id="sums-panel">
+        <h3 style="text-align:center; color:var(--muted); font-weight:700; margin-top:32px; margin-bottom:10px; letter-spacing:-0.01em; font-size:1.2rem;">Sums</h3>
+        <div class="sum-grid">
+            <div id="row-sums" class="sum-section" aria-label="Row sums">
+                <div class="sum-title">Rows</div>
+                <div class="chips" id="row-chips"></div>
+            </div>
 
-        <div id="diag-sums" class="sum-section diag-section" aria-label="Diagonal sums" style="grid-column: 1 / 2;">
-            <div class="sum-title">Diagonals</div>
-            <div class="chips">
-                <div class="item">
-                    <div class="sum-label">Main Diagonal</div>
-                    <span id="main-diag" class="chip"></span>
-                </div>
-                <div class="item">
-                    <div class="sum-label">Anti Diagonal</div>
-                    <span id="anti-diag" class="chip"></span>
+            <div id="col-sums" class="sum-section" aria-label="Column sums">
+                <div class="sum-title">Columns</div>
+                <div class="chips" id="col-chips"></div>
+            </div>
+
+            <div id="diag-sums" class="sum-section diag-section" aria-label="Diagonal sums" style="grid-column: 1 / 2;">
+                <div class="sum-title">Diagonals</div>
+                <div class="chips">
+                    <div class="item">
+                        <div class="sum-label">Main Diagonal</div>
+                        <span id="main-diag" class="chip"></span>
+                    </div>
+                    <div class="item">
+                        <div class="sum-label">Anti Diagonal</div>
+                        <span id="anti-diag" class="chip"></span>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- status-area placed in column 2 so it appears to the right of diagonals.
-             JS will adjust vertical offset so the status's top lines up with the first
-             Column chip (first column sum value). -->
-        <div id="status-area" class="sum-section status-area" style="grid-column: 2 / 3;"></div>
     </div>
 
     <script>
@@ -589,6 +626,9 @@
             document.getElementById('main-diag').textContent = '';
             document.getElementById('anti-diag').textContent = '';
             document.getElementById('status-area').innerHTML = '';
+            document.getElementById('status-area').classList.remove('status-visible');
+            document.getElementById('status-area').style.display = '';
+            document.getElementById('sums-panel').style.display = 'none';
         }
 
         function undoLast() {
@@ -599,11 +639,19 @@
                     cell.classList.remove('filled');
                     currentNum--;
                 }
-                // results div removed
+                document.getElementById('status-area').innerHTML = '';
+                document.getElementById('status-area').classList.remove('status-visible');
+                document.getElementById('status-area').style.display = '';
+                document.getElementById('sums-panel').style.display = 'none';
             }
         }
 
         async function calculateSums() {
+            document.getElementById('status-area').innerHTML = '';
+            document.getElementById('status-area').classList.remove('status-visible');
+            document.getElementById('status-area').style.display = '';
+            document.getElementById('sums-panel').style.display = 'none';
+
             if (gridSize === 0) {
                 await showModal('Create a grid first.');
                 return;
@@ -660,29 +708,23 @@
             document.getElementById('main-diag').textContent = mainDiagSum;
             document.getElementById('anti-diag').textContent = antiDiagSum;
 
-            // put status chip into the status-area (right of diagonals)
-            const statusHtml = `<span id="status-chip" class="status-chip ${success ? 'success' : 'failure'}">${success ? 'Success' : 'Failure'}</span>`;
+            // Show only the result until the user requests details.
+            const statusHtml = success
+                ? '<span id="status-chip" class="status-chip success">Success</span>'
+                : '<span id="status-chip" class="status-chip failure">Failure</span><button id="failure-details" class="failure-details" type="button" aria-label="Show sum details" title="Show sum details">?</button>';
             const statusArea = document.getElementById('status-area');
             statusArea.innerHTML = statusHtml;
+            statusArea.style.display = '';
+            statusArea.classList.add('status-visible');
 
-            // ensure results visible then align status vertically with the first Column chip
-            // Wait a frame so layout is updated, then compute precise vertical offset
-            requestAnimationFrame(() => {
-                const firstColChip = document.querySelector('#col-sums .chips .chip');
-                const statusChip = document.getElementById('status-chip');
-                const statusArea = document.getElementById('status-area');
-                if (firstColChip && statusArea && statusChip) {
-                    const colRect = firstColChip.getBoundingClientRect();
-                    const statusAreaRect = statusArea.getBoundingClientRect();
-                    // compute top offset needed inside status-area so statusChip top aligns with firstColChip top
-                    const desiredTopInStatusArea = colRect.top - statusAreaRect.top;
-                    // apply padding-top to status-area so the chip shifts down into alignment
-                    statusArea.style.paddingTop = Math.max(0, desiredTopInStatusArea) + 'px';
-                } else {
-                    // fallback: small top padding
-                    statusArea.style.paddingTop = '6px';
-                }
-            });
+            const detailsButton = document.getElementById('failure-details');
+            if (detailsButton) {
+                detailsButton.addEventListener('click', () => {
+                    document.getElementById('sums-panel').style.display = 'block';
+                    statusArea.classList.remove('status-visible');
+                    statusArea.style.display = 'none';
+                });
+            }
         }
     </script>
 </body>
