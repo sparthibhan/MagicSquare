@@ -11,7 +11,7 @@ Demo URL : https://sparthibhan.github.io/MagicSquare
 - Apple-like theme: improved UI styling for inputs, buttons and cards (subtle gradients, rounded controls).
 - Visible green grid borders: grid separators and outer border are always visible (1px green separators).
 - Stable cell hover/fill: hover/fill styles use inset effects (no shifting) so separators stay visible.
-- Sum & Check: "Sum and Check" button computes row/column/diagonal sums and checks if all sums match.
+- Sum & Check: "Sum and Check" button row/column/diagonal sums and checks if all sums match.
   - Shows a status chip: "Success" or "Failure".
   - Status chip is displayed to the right of the diagonal section and aligned vertically with the first column sum value.
   - Failure styling is clearly red; Success styling is green.
@@ -42,7 +42,7 @@ Demo URL : https://sparthibhan.github.io/MagicSquare
 2. Enter grid size and starting number.
 3. Click "Create Square".
 4. Click empty cells to fill them (numbers increment automatically).
-5. Click "Sum and Check" to compute sums and display Success/Failure.
+5. System will call "Sum and Check" to compute sums and display Success/Failure.
    - The status text appears to the right of diagonals and is aligned with the first column sum.
 6. Use "Undo" to remove last filled cell(s); results hide after undo.
 
