@@ -559,7 +559,6 @@
             </div>
             <div class = "form-group">
                 <button onclick="createGrid()">Create Square</button>
-                <button onclick="calculateSums()">Sum and Check</button>
                 <button id="undo-btn" onclick="undoLast()">Undo</button>
             </div>
         </div>
@@ -811,6 +810,9 @@
                         currentNum++;
                         this.classList.add('filled');
                         filledHistory.push(this);
+                        if (gridCells.every(cell => cell.textContent.trim() !== '')) {
+                            calculateSums();
+                        }
                     }
                 });
                 container.appendChild(cell);
@@ -913,13 +915,16 @@
             statusArea.innerHTML = statusHtml;
             statusArea.style.display = '';
             statusArea.classList.add('status-visible');
+            statusArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             const detailsButton = document.getElementById('failure-details');
             if (detailsButton) {
                 detailsButton.addEventListener('click', () => {
-                    document.getElementById('sums-panel').style.display = 'block';
+                    const sumsPanel = document.getElementById('sums-panel');
+                    sumsPanel.style.display = 'block';
                     statusArea.classList.remove('status-visible');
                     statusArea.style.display = 'none';
+                    sumsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
             }
         }
